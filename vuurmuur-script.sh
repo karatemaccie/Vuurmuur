@@ -7,10 +7,13 @@ IPS_UNBLOCKED=/etc/ufw-dynamic-hosts.unblocked
 IPS_ALLOW=/var/tmp/ufw-dynamic-ips.allow
 IP_HOLDER=/var/tmp/ufw-dynamic-holder.allow
 
+IPS_OPEN=/etc/ufw-dynamic-ports.open
+
 touch $HOSTS_ALLOW
 touch $HOSTS_DISALLOW
 touch $IPS_BLOCKED
 touch $IPS_UNBLOCKED
+touch $IPS_OPEN
 
 add_rule() {
   local proto=$1
@@ -110,4 +113,14 @@ do
     
     
     delete_block $proto $port $ip        
+done
+
+sed '/^[[:space:]]*$/d' ${IPS_OPEN} | sed '/^[[:space:]]*#/d' | while read line
+do
+    proto=$(echo ${line} | cut -d: -f1)
+    port=$(echo ${line} | cut -d: -f2)
+    ip=$(echo ${line} | cut -d: -f3)
+    
+    
+    add_rule $proto $port $ip        
 done
